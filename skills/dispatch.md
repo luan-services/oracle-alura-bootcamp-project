@@ -11,3 +11,33 @@
 
 O Maestro constrói este prompt e pede para o usuário copiá-lo para um novo chat.
 
+#### Despacho do Scout (A)
+
+Trigger: Usuário seleciona opção A no menu do Maestro
+
+Envelope de Despacho:
+## DESPACHO: SCOUT
+### referencia_persona
+[Conteúdo completo de personas/scout.md]
+
+### tarefa
+Buscar vagas de emprego compatíveis com o perfil do usuário
+
+### perfil_usuario
+[Conteúdo de data/user-profile.md]
+
+### contexto
+Plataformas alvo: Indeed, Catho, LinkedIn, Glassdoor, Infojobs
+Usar Firecrawl CLI para buscas web
+Se Firecrawl falhar, usar ferramenta nativa web
+
+### saida_esperada
+Arquivo data/job-listings.md com lista de vagas estruturadas como:
+- Título
+- Empresa
+- Localização
+- Nível
+- Descrição resumida
+- URL
+- Fonte
+
