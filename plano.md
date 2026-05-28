@@ -1,93 +1,108 @@
-# Plano de Desenvolvimento: Orquestrador de Vagas de Emprego
+# Maestro — Orquestrador (Versão Python/Codespaces)
 
 ## Visão Geral
-Criar um sistema orquestrador que gerencia agentes especializados para buscar vagas de emprego, com foco inicial na criação do agente maestro (orquestrador principal).
 
----
+Sistema multi-agente construído em Python que auxilia usuários em sua jornada de desenvolvimento de carreira, combinando busca de empregos, identificação de lacunas de habilidades, recomendações de cursos e simulação de entrevistas.
 
-## 1. Agente Maestro (Orquestrador)
+**Objetivo**: Criar o orquestrador principal (`main.py`) que saúda o usuário no terminal, conduz o quiz, salva o perfil em arquivos locais e apresenta o menu de ações.
 
-### Descrição
-O **Maestro** é o agente principal de comunicação com o usuário. Ele deve:
-- Receber demandas e pedidos dos usuários
-- Interpretar as necessidades
-- Delegar tarefas para agentes específicos usando sua ferramenta nativa de despacho de agentes
+## Diretrizes de Implementação
 
-### Skill de Delegação
-O Maestro deve possuir uma **skill de delegação** que utiliza sua ferramenta nativa de despacho de agentes. Esta skill deve:
-- Analisar a solicitação do usuário
-- Identificar qual agente especializado é o mais adequado
-- Despachar a tarefa para o agente correto
-- Receber e consolidar os resultados
-- Retornar a resposta formatada ao usuário
+- O sistema DEVE ser implementado através de scripts Python. O modelo atuará como um Desenvolvedor Backend escrevendo o código.
+- Sem tabelas markdown em nenhuma saída de dados da IA. Use listas numeradas com pares chave-valor para dados estruturados.
+- Todos os caminhos de arquivo devem ser relativos à raiz do projeto com prefixo explícito `data/`.
+- O gerenciamento de estado será feito via leitura e escrita nativa de arquivos no Python (`open()`, `json`, etc).
+- Para simular a comunicação entre agentes, o Python fará chamadas HTTP para o OpenRouter.
 
----
+## Arquitetura
 
-## 2. Playbook do Maestro
-
-O comportamento do Maestro deve seguir a seguinte sequência:
-
-### Passo 1: Saudação
-- Cumprimentar o usuário de forma amigável
-- Apresentar-se como o assistente de busca de empregos
-
-### Passo 2: Verificação de Quiz
-- Conferir se já existe um **quiz das habilidades e preferências** do usuário salvo no sistema
-- Este quiz contém informações sobre o perfil profissional do usuário
-
-### Passo 3: Aplicação do Quiz (se necessário)
-Caso não exista o quiz preenchido, o Maestro deve enviar as **5 perguntas** para conhecer o usuário:
-
-1. **Qual é a sua área de atuação profissional ou a área que deseja trabalhar?**
-2. **Quais são suas principais habilidades técnicas? (ex: Python, Java, Design, Vendas, etc.)**
-3. **Qual é o seu nível de experiência? (Estagiário, Júnior, Pleno, Sênior, Especialista)**
-4. **Qual é a sua localização desejada ou preferência de trabalho? (Remoto, Híbrido, Presencial - Cidade/Estado)**
-5. **Quais são seus objetivos salariais ou faixa salarial pretendida?**
-
-### Passo 4: Menu de Opções
-Após a saudação e verificação/coleta do quiz, disponibilizar um menu de opções:
+```text
+┌─────────────────────────────────────────────────┐
+│                  Usuário (Terminal)             │
+└────────────────────┬────────────────────────────┘
+                     │
+                     ▼
+┌─────────────────────────────────────────────────┐
+│              main.py (Orquestrador)             │
+│  - Loop do terminal via input()                 │
+│  - Gerencia leitura/escrita em data/            │
+│  - Faz requisições HTTP (Dispatcher)            │
+└──┬──────────────┬──────────────┬────────────────┘
+   │              │              │
+   ▼              ▼              ▼
+┌─────────┐  ┌──────────┐  ┌──────────────┐
+│ SCOUT   │  │ CURATOR  │  │ COACH        │
+│ (Busca  │  │ (Busca   │  │ (Simulação   │
+│  de     │  │  de      │  │  de          │
+│  Vagas) │  │  Cursos) │  │  Entrevistas)│
+└─────────┘  └──────────┘  └──────────────┘
 
 ```
-Olá! Como posso ajudar você hoje?
 
-Escolha uma opção:
-a) Responder/Atualizar o quiz de perfil
-b) Buscar vagas de emprego
+**Escopo Atual**: Implementar apenas a lógica principal do Maestro (`main.py`) cobrindo o Quiz e o Menu. Os agentes externos serão mockados ou implementados depois.
+
+## Estrutura de Diretórios
+
+```text
+recoloca-ia/
+├── main.py                     # Script principal (O Maestro)
+├── dispatcher.py               # Lógica de chamadas de API (Handoff)
+├── personas/
+│   └── maestro.md              # Texto base da persona do orquestrador
+└── data/
+    ├── personality-quiz.json   # Respostas salvas do usuário
+    └── user-profile.json       # Perfil consolidado (com funções alvo)
+
 ```
 
----
+## Tasks de Desenvolvimento
 
-## 3. Primeiro Agente Especializado: Buscador de Vagas
+### 1. Configurar Estrutura Base
 
-### Descrição
-O **Agente Buscador de Vagas** será o primeiro agente especializado a ser criado.
+Crie os diretórios `personas/` e `data/`. O estado não será mais salvo em Markdown bagunçado, mas sim em `.json` para facilitar a manipulação pelo Python.
 
-### Funcionalidades (a serem detalhadas em fase posterior)
-- Receber parâmetros de busca do Maestro
-- Consultar fontes de vagas (APIs, sites de emprego, etc.)
-- Filtrar vagas baseadas no perfil do usuário (quiz)
-- Retornar lista de vagas relevantes
-- Apresentar informações estruturadas das vagas
+### 2. Criar `personas/maestro.md`
 
-### Status
-⚠️ **Ainda não implementado** - Apenas planejado para desenvolvimento futuro
+Este arquivo conterá apenas as instruções de comportamento que o Python enviará para a API quando precisar conversar livremente com o usuário. Deve conter o mapeamento completo das funções alvo (ex: Frontend + Júnior = Desenvolvedor Frontend, etc).
 
----
+### 3. Implementar Lógica de Estado (`main.py`)
 
-## 4. Próximos Passos
+Implementar funções no Python equivalentes à ferramenta `find_path`:
 
-1. Implementar o agente **Maestro** com o playbook definido
-2. Criar a skill de delegação no Maestro
-3. Implementar o sistema de armazenamento do quiz do usuário
-4. Desenvolver o **Agente Buscador de Vagas** (segunda fase)
-5. Integrar o Maestro com o Agente Buscador de Vagas
-6. Testar o fluxo completo
+* `verificar_quiz_existente()`: Usa `os.path.exists('data/personality-quiz.json')`.
+* `salvar_quiz()` e `gerar_perfil_usuario()`: Processa as respostas do terminal e salva os arquivos JSON correspondentes com as funções alvo mapeadas.
 
----
+### 4. Implementar Fluxo do Terminal (`main.py`)
 
-## 5. Observações Técnicas
+1. Saudar o usuário via `print()`.
+2. Chamar `verificar_quiz_existente()`.
+3. Se não existir, iniciar o **Quiz no Terminal**:
+* Fazer as 7 perguntas sequencialmente usando `input()`.
+* "Qual área mais te anima? (Frontend, Backend, etc)"
+* "Como você descreveria seu nível de experiência atual? (Júnior, Pleno, Sênior)"
+* "Como você prefere trabalhar? (Remoto, Híbrido, Presencial)"
+* "Onde você está localizado?"
+* "Quais são suas soft skills mais fortes?"
+* "Onde você se vê em sua carreira?"
+* "Quais habilidades técnicas você já tem?"
 
-- O Maestro deve manter contexto da conversa com o usuário
-- O quiz deve ser persistido para uso futuro na busca de vagas
-- A arquitetura deve permitir adição de novos agentes especializados no futuro
-- O sistema de delegação deve ser flexível para rotear diferentes tipos de solicitações
+
+4. Após o quiz, salvar os dados e gerar `data/user-profile.json`.
+5. Apresentar o **Menu**:
+* **A** — Buscar vagas (Em desenvolvimento)
+* **B** — Encontrar cursos (Em desenvolvimento)
+* **C** — Praticar entrevista (Em desenvolvimento)
+* **D** — Refazer o quiz (Exclui os JSONs e reinicia o loop)
+
+
+
+### 5. Preparar Dispatcher (Handoff)
+
+Criar uma estrutura em `dispatcher.py` contendo o "Envelope de Despacho". Este arquivo será responsável por pegar a ação do menu (A, B ou C), carregar o JSON do usuário e montar o prompt formatado que futuramente será enviado via requisição HTTP para a LLM atuar como os outros agentes.
+
+## Testes Esperados ao rodar `python main.py`
+
+* O script não quebra ao iniciar.
+* O terminal faz as 7 perguntas e aguarda input do usuário.
+* Ao fim do quiz, os arquivos `.json` são criados corretamente na pasta `data/`.
+* O menu de opções é exibido e a opção D reinicia o fluxo corretamente.
